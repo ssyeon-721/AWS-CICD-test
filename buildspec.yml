@@ -1,4 +1,5 @@
 version: 0.2
+
 env:
   variables:
     AWS_REGION: ap-northeast-1
@@ -13,28 +14,27 @@ phases:
       - env | sort | sed -n '1,200p' | sed -e 's/[^[:print:]]/?/g'
       - aws --version
       - docker version || true
-      - echo "STS caller: $(aws sts get-caller-identity --query Arn --output text --region $AWS_REGION)"
+      - echo "STS caller: $(aws sts get-caller-identity --query Arn --output text --region ${AWS_REGION})"
       - echo "Check ECR repo exists"
-      - aws ecr describe-repositories --repository-names $IMAGE_REPO --region $AWS_REGION
-      - REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+      - aws ecr describe-repositories --repository-names ${IMAGE_REPO} --region ${AWS_REGION}
+      - REGISTRY=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       - echo "Login to ECR: ${REGISTRY}"
-      # 3회 재시도
-      - |
-        for i in 1 2 3; do
-          aws ecr get-login-password --region $AWS_REGION \
-          | docker login --username AWS --password-stdin "$REGISTRY" && break
-          echo "ECR login retry $i failed; sleeping..."; sleep 5
-        done
+      - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${REGISTRY}
+
   build:
     commands:
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - docker build -t $IMAGE_REPO:$COMMIT_HASH-live .
-      - docker tag $IMAGE_REPO:$COMMIT_HASH-live $REGISTRY/$IMAGE_REPO:$COMMIT_HASH-live
+      - COMMIT_HASH=$(echo ${CODEBUILD_RESOLVED_SOURCE_VERSION} | cut -c 1-7)
+      - echo "Building image tag: ${COMMIT_HASH}-live"
+      - docker build -t ${IMAGE_REPO}:${COMMIT_HASH}-live .
+      - docker tag ${IMAGE_REPO}:${COMMIT_HASH}-live ${REGISTRY}/${IMAGE_REPO}:${COMMIT_HASH}-live
+
   post_build:
     commands:
-      - docker push $REGISTRY/$IMAGE_REPO:$COMMIT_HASH-live
+      - echo "Pushing image: ${REGISTRY}/${IMAGE_REPO}:${COMMIT_HASH}-live"
+      - docker push ${REGISTRY}/${IMAGE_REPO}:${COMMIT_HASH}-live
 
 artifacts:
   files:
     - appspec.yml
-    - scripts/*
+    - scripts/**/*
+  discard-paths: yes
