@@ -3,7 +3,7 @@ set -e
 
 AWS_REGION=ap-northeast-1
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-IMAGE_REPO=myapp
+IMAGE_REPO=cicd-test-ecr
 
 echo ">>> Fetching latest image tag..."
 IMG_TAG=$(aws ecr describe-images \
@@ -16,7 +16,7 @@ echo ">>> Pulling latest image from ECR: $IMG_TAG"
 docker pull $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO:$IMG_TAG
 
 echo ">>> Stopping old container (if exists)"
-docker stop myapp || true
+docker stop cicd-test-ecr || true
 
 echo ">>> Running new container"
 docker run -d --rm --name myapp -p 80:80 $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO:$IMG_TAG
