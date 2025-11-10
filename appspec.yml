@@ -1,0 +1,9 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ec2-user/myapp
+hooks:
+  AfterInstall:
+    - location: scripts/deploy_container.sh
+      timeout: 300
