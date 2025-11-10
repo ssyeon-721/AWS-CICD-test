@@ -15,7 +15,7 @@ phases:
     commands:
       - echo "Building Docker image..."
       - docker build -t $IMAGE_REPO:$COMMIT_HASH-live .
-      - docker tag $IMAGE_REPO:$COMMIT_HASH-live <ACCOUNT_ID>.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO:$COMMIT_HASH-live
+      - docker tag $IMAGE_REPO:$COMMIT_HASH-live 084828589246.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO:$COMMIT_HASH-live
   post_build:
     commands:
       - echo "Pushing Docker image to ECR..."
