@@ -22,15 +22,15 @@ phases:
 
   build:
     commands:
-      - COMMIT_HASH="$(echo ${CODEBUILD_RESOLVED_SOURCE_VERSION} | cut -c 1-7)"
-      - echo "Building ${IMAGE_REPO}:${COMMIT_HASH}-live"
-      - docker build -t "${IMAGE_REPO}:${COMMIT_HASH}-live" .
-      - docker tag "${IMAGE_REPO}:${COMMIT_HASH}-live" "${REGISTRY}/${IMAGE_REPO}:${COMMIT_HASH}-live"
+      - COMMIT_HASH="$(echo "${CODEBUILD_RESOLVED_SOURCE_VERSION:-manual}" | cut -c 1-7)"
+      - IMG="${REGISTRY}/${IMAGE_REPO}:${COMMIT_HASH}-live"
+      - echo "Building ${IMG}"
+      - docker build --pull -t "${IMG}" .
 
   post_build:
     commands:
-      - echo "Pushing ${REGISTRY}/${IMAGE_REPO}:${COMMIT_HASH}-live"
-      - docker push "${REGISTRY}/${IMAGE_REPO}:${COMMIT_HASH}-live"
+      - echo "Pushing ${IMG}"
+      - docker push "${IMG}"
 
 artifacts:
   files:
