@@ -19,4 +19,4 @@ echo ">>> Stopping old container (if exists)"
 docker stop cicd-test-ecr || true
 
 echo ">>> Running new container"
-docker run -d --rm --name myapp -p 80:80 $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO:$IMG_TAG
+docker run -d --rm --name cicd-test-ecr -p 80:80 $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO:$IMG_TAG
